@@ -11,12 +11,12 @@ namespace Question01
         //Symbol,date, Open , High , Low , close
         public string Symbol { get; set; }
         public string Date { get; set; }
-        public string Open { get; set; }
-        public string High { get; set; }
-        public string Low { get; set; }
-        public string Close { get; set; }
+        public decimal Open { get; set; }
+        public decimal High { get; set; }
+        public decimal Low { get; set; }
+        public decimal Close { get; set; }
 
-        public StockData(string symbol, DateTime date, string open, string high, string low, string close)
+        public StockData(string symbol, DateTime date, decimal open, decimal high, decimal low, decimal close)
         {
             this.Symbol = symbol;
             this.Date = date.ToString("MM/dd/yyyy");
@@ -25,5 +25,6 @@ namespace Question01
             this.Low = low;
             this.Close = close;
         }
+        public StockData() { }
     }
 }

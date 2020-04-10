@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,9 +29,11 @@ namespace Question01
         //List of StockData after searched for specific stock.
         List<StockData> searchStockData = new List<StockData>();
         //counter to file lines
-        long fileLines = 1;
+        long fileLines = 0;
         //Path of the file
         string filePath = @"../../Model/stockData.csv";
+
+        Regex regex = new Regex("^[$]?([0 - 9]{1, 2})?,?([0 - 9]{3})?,?([0 - 9]{3})?(.[0-9]{2})");
 
         public MainWindow()
         {
@@ -51,9 +54,12 @@ namespace Question01
                 using (StreamReader r = new StreamReader(filePath))
                 {
                     string line;
+                    string[] items;
                     while ((line = r.ReadLine()) != null)
                     {
-                        fileLines++;
+                        //items= line.Split(',');
+                        //if (regex.IsMatch(items[2])&& regex.IsMatch(items[3])&& regex.IsMatch(items[4]) && regex.IsMatch(items[5]))
+                            fileLines++;
                     }
                 }
                 progBarLoadFile.Maximum = fileLines;
@@ -76,24 +82,37 @@ namespace Question01
             //StreamReader object to read from the .csv file
             StreamReader sr = new StreamReader(File.OpenRead(filePath));
             lblLoadMessages.Content = "Loading file...";
+            StockData stockQuote;
             while (!sr.EndOfStream)
             {
                 string line = await sr.ReadLineAsync();
+                
                 if (!String.IsNullOrWhiteSpace(line))
                 {
-                    string[] values = line.Split(',');
-                    if (values[0] != "Symbol")
+                    string[] values = line.Split(',');                    
+                    if (!values[0].Contains("Symbol"))
                     {
-                        //Load each file line into the List of stockdata objects
-                        stockData.Add(new StockData(values[0].ToUpper(), DateTime.Parse(values[1]), values[2], values[3], values[4], values[5]));
-                        progBarLoadFile.Value++;
-                        //await Task.Delay(1);
+                        try
+                        {
+                            stockQuote = new StockData(values[0].ToUpper(), DateTime.Parse(values[1]),
+                                    decimal.Parse(values[2].Substring(1)), decimal.Parse(values[3].Substring(1)),
+                                    decimal.Parse(values[4].Substring(1)), decimal.Parse(values[5].Substring(1)));
+
+                            //Load each file line into the List of stockdata objects
+                            stockData.Add(stockQuote);
+                            progBarLoadFile.Value++;
+                            await Task.Delay(1);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
                     }
                 }
             }
 
             lblLoadMessages.Content = "File Loaded.";
-            lblErrorMessages.Content = stockData.Count();
+            lblErrorMessages.Content = stockData.Count() + " entries found.";
             btnLoadFile.IsEnabled = true;
             btnSearch.IsEnabled = true;
 

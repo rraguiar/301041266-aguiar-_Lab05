@@ -61,7 +61,8 @@
                   CanUserReorderColumns="False"
                   CanUserResizeRows="False"
                   CanUserResizeColumns="False"
-                  CanUserAddRows="False" />
+                  CanUserAddRows="False" 
+                  IsReadOnly="true"/>
         <GroupBox x:Name="gBoxFactoration"
                   Header="Factoration"
                   HorizontalAlignment="Left"
