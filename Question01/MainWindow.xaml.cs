@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -29,11 +30,12 @@ namespace Question01
         //List of StockData after searched for specific stock.
         List<StockData> searchStockData = new List<StockData>();
         //counter to file lines
-        long fileLines = 0;
+        long fileLines = 1;
         //Path of the file
         string filePath = @"../../Model/stockData.csv";
+        //string[] values;
 
-        Regex regex = new Regex("^[$]?([0 - 9]{1, 2})?,?([0 - 9]{3})?,?([0 - 9]{3})?(.[0-9]{2})");
+        //Regex regex = new Regex("^[$]?([0 - 9]{1, 2})?,?([0 - 9]{3})?,?([0 - 9]{3})?(.[0-9]{2})");
 
         public MainWindow()
         {
@@ -54,7 +56,7 @@ namespace Question01
                 using (StreamReader r = new StreamReader(filePath))
                 {
                     string line;
-                    string[] items;
+                    //string[] items;
                     while ((line = r.ReadLine()) != null)
                     {
                         //items= line.Split(',');
@@ -82,34 +84,38 @@ namespace Question01
             //StreamReader object to read from the .csv file
             StreamReader sr = new StreamReader(File.OpenRead(filePath));
             lblLoadMessages.Content = "Loading file...";
-            StockData stockQuote;
-            while (!sr.EndOfStream)
-            {
-                string line = await sr.ReadLineAsync();
+            //while (!sr.EndOfStream)
+            //{
+                //string line = await sr.ReadLineAsync();
                 
-                if (!String.IsNullOrWhiteSpace(line))
-                {
-                    string[] values = line.Split(',');                    
+                //if (!String.IsNullOrWhiteSpace(line))
+                //{
+                    //string[] values = line.Split(',');
+
+                    var test = new TextFieldParser (sr);
+                    test.TextFieldType = FieldType.Delimited;
+                    test.HasFieldsEnclosedInQuotes = true;
+                    test.SetDelimiters(",");
+
+                    string[] values = test.ReadFields();
+
                     if (!values[0].Contains("Symbol"))
                     {
-                        try
-                        {
-                            stockQuote = new StockData(values[0].ToUpper(), DateTime.Parse(values[1]),
-                                    decimal.Parse(values[2].Substring(1)), decimal.Parse(values[3].Substring(1)),
-                                    decimal.Parse(values[4].Substring(1)), decimal.Parse(values[5].Substring(1)));
-
-                            //Load each file line into the List of stockdata objects
-                            stockData.Add(stockQuote);
+                    //try
+                    //{
+                    //Load each file line into the List of stockdata objects
+                    //stockData.Add(new StockData(values[0].ToUpper(), DateTime.Parse(values[1]), values[2], values[3], values[4], values[5]));
+                    lblLoadMessages.Content = "Size: " + values.Length;
                             progBarLoadFile.Value++;
-                            await Task.Delay(1);
-                        }
-                        catch
-                        {
-                            continue;
-                        }
+                            //await Task.Delay(1);
+                        //}
+                        //catch
+                        //{
+                        //    continue;
+                        //}
                     }
-                }
-            }
+                //}
+            //}
 
             lblLoadMessages.Content = "File Loaded.";
             lblErrorMessages.Content = stockData.Count() + " entries found.";
