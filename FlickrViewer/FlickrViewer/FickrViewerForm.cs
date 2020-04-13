@@ -14,31 +14,23 @@ namespace FlickrViewer
 {
     public partial class FickrViewerForm : Form
     {
-
         // Use your Flickr API key here--you can get one at:
         // https://www.flickr.com/services/apps/create/apply
         private const string KEY = "2e77003f5a5ab4e50baf9fcedfc5ee0c";
-
         // object used to invoke Flickr web service      
         private static HttpClient flickrClient = new HttpClient();
-
         Task<string> flickrTask = null; // Task<string> that queries Flickr
-
         //Make FlickrPhotos a global variable
         //var FlickrPhotos;
         IEnumerable<FlickrResult> flickrPhotos;
         byte[] imageToSave;
-
         int imageNumber = 0;
-
         public FickrViewerForm()
         {
             InitializeComponent();
-
             //Initialize ComboBox options
             cBoxSizes.Items.AddRange(new object[] { "Half Size", "Full Size" });
             cBoxSizes.SelectedIndex = 0;
-
         }
 
         // initiate asynchronous Flickr search query; 
@@ -52,7 +44,6 @@ namespace FlickrViewer
                    "Cancel the current Flickr search?",
                    "Are you sure?", MessageBoxButtons.YesNo,
                    MessageBoxIcon.Question);
-
                 // determine whether user wants to cancel prior search
                 if (result == DialogResult.No)
                 {
@@ -63,24 +54,19 @@ namespace FlickrViewer
                     flickrClient.CancelPendingRequests(); // cancel search
                 }
             }
-
             // Flickr's web service URL for searches                         
             var flickrURL = "https://api.flickr.com/services/rest/?method=" +
                $"flickr.photos.search&api_key={KEY}&" +
                $"tags={inputTextBox.Text.Replace(" ", ",")}" +
                "&tag_mode=all&per_page=500&privacy_filter=1";
-
             imagesListBox.DataSource = null; // remove prior data source
             imagesListBox.Items.Clear(); // clear imagesListBox
             pictureBox.Image = null; // clear pictureBox
             imagesListBox.Items.Add("Loading..."); // display Loading...
-
             // invoke Flickr web service to search Flick with user's tags
             flickrTask = flickrClient.GetStringAsync(flickrURL);
-
             // await flickrTask then parse results with XDocument and LINQ
             XDocument flickrXML = XDocument.Parse(await flickrTask);
-
             // gather information on all photos
             flickrPhotos =
                from photo in flickrXML.Descendants("photo")
@@ -96,7 +82,6 @@ namespace FlickrViewer
                      $"{server}/{id}_{secret}.jpg"
                };
             imagesListBox.Items.Clear(); // clear imagesListBox
-
             // set ListBox properties only if results were found
             if (flickrPhotos.Any())
             {
@@ -116,13 +101,10 @@ namespace FlickrViewer
             if (imagesListBox.SelectedItem != null)
             {
                 string selectedURL = ((FlickrResult)imagesListBox.SelectedItem).URL;
-
                 try
                 {
-
                     // use HttpClient to get selected image's bytes asynchronously
                     byte[] imageBytes = await flickrClient.GetByteArrayAsync(selectedURL);
-
                     // display downloaded image in pictureBox                  
                     using (var memoryStream = new MemoryStream(imageBytes))
                     {
@@ -155,7 +137,6 @@ namespace FlickrViewer
             }
             catch { }
         }
-
         /// <summary>
         /// Method that resize the picture accordingly to the option selected on the Combo Box
         /// and save it as a ".png" file.
